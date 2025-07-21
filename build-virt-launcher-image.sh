@@ -45,9 +45,9 @@ volumes="--mount type=bind,source=${HOME}/.docker/config.json,target=/root/.dock
 git clone --depth 1 -b virtstack-crd-rebased https://github.com/harshitgupta1337/kubevirt.git
 KUBEVIRT_CORE_PATH=$(realpath ./kubevirt)
 
-# Delete libvirt-qemu virt-launcher code from KubeVirt Core
+# Delete cloud-hypervisor virt-launcher code from KubeVirt Core
 pushd $KUBEVIRT_CORE_PATH
-rm -rf cmd/virt-launcher* pkg/virt-launcher-libvirt-qemu
+rm -rf cmd/virt-launcher* pkg/virt-launcher-cloud-hypervisor
 popd
 
 # Mount the KubeVirt core repository to the builder (as readonly)
@@ -55,12 +55,12 @@ volumes="$volumes --mount type=bind,source=${KUBEVIRT_CORE_PATH},target=/kubevir
 
 LAUNCHER_PATH=$(pwd)
 # Mount the Libvirt-QEMU virt-launcher repo directory to the builder
-volumes="$volumes --mount type=bind,source=${LAUNCHER_PATH},target=/virt-launcher-libvirt-qemu"
+volumes="$volumes --mount type=bind,source=${LAUNCHER_PATH},target=/virt-launcher-cloud-hypervisor"
 
 # Launch the builder container
 ctr=$(docker run -d --ulimit nofile=10000:10000 --network host $volumes --security-opt "label=disable" $BUILDER_IMG /bin/sleep infinity)
 
-docker exec -it $ctr bash -c "cd virt-launcher-libvirt-qemu && export DOCKER_PREFIX=${DOCKER_PREFIX} && export DOCKER_TAG=${DOCKER_TAG} && ./hack/bazel-build-images.sh && ./hack/bazel-push-images.sh"
+docker exec -it $ctr bash -c "cd virt-launcher-cloud-hypervisor && export DOCKER_PREFIX=${DOCKER_PREFIX} && export DOCKER_TAG=${DOCKER_TAG} && ./hack/bazel-build-images.sh && ./hack/bazel-push-images.sh"
 
 if [ "$DELETE_BUILDER" == "true" ]; then
     docker rm -f $ctr
