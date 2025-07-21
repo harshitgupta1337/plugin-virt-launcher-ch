@@ -175,6 +175,18 @@ pkg_tar(
     owner = "0.0",
 )
 
+pkg_tar(
+    name = "cloud-hypervisor_binary_tar",
+    srcs = ["@cloud-hypervisor_binary//file"],
+    package_dir = "/usr/bin",
+)
+
+pkg_tar(
+    name = "cloudhv_fw_tar",
+    srcs = ["@cloudhv_fw//file"],
+    package_dir = "/usr/share/OVMF",
+)
+
 container_image(
     name = "version-container",
     directory = "/",
@@ -214,6 +226,10 @@ container_image(
     }),
     base = ":version-container",
     entrypoint = ["/usr/bin/virt-launcher"],
-    tars = [":setcaps"],
+    tars = [
+        ":setcaps",
+        ":cloud-hypervisor_binary_tar",
+        ":cloudhv_fw_tar",
+    ],
     visibility = ["//visibility:public"],
 )
