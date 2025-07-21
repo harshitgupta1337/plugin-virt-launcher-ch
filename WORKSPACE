@@ -423,6 +423,24 @@ http_archive(
     ],
 )
 
+http_file(
+    name = "cloud-hypervisor_binary",
+    downloaded_file_path = "cloud-hypervisor",
+    executable = True,
+    urls = [
+        "https://github.com/cloud-hypervisor/cloud-hypervisor/releases/download/v46.0/cloud-hypervisor-static",
+    ],
+)
+
+http_file(
+    name = "cloudhv_fw",
+    downloaded_file_path = "CLOUDHV.fd",
+    sha256 = "0624c06c5d07cb8efe38806890ce7076c41c0902f2fcd5b2376f107033e3222b",
+    urls = [
+        "https://github.com/cloud-hypervisor/edk2/releases/download/ch-a54f262b09/CLOUDHV.fd",
+    ],
+)
+
 http_archive(
     name = "libguestfs-appliance-s390x",
     sha256 = "532cb951d4245265da645c8cce14033c19ea8f0d163c01e88f4153dae44e0f95",
