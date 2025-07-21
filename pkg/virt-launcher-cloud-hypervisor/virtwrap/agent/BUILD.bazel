@@ -3,10 +3,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "go_default_library",
     srcs = ["exec.go"],
-    importpath = "kubevirt.io/kubevirt/pkg/virt-launcher-libvirt-qemu/virtwrap/agent",
+    importpath = "kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/agent",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/virt-launcher-libvirt-qemu/virtwrap/cli:go_default_library",
+        "//pkg/virt-launcher-cloud-hypervisor/virtwrap/cli:go_default_library",
         "@kubevirt//pkg/virt-launcher/virtwrap/agent:go_default_library",
     ],
 )
