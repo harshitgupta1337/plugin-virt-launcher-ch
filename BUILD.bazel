@@ -1,0 +1,73 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary")
+load("@bazel_tools//tools/python:toolchain.bzl", "py_runtime_pair")
+
+py_runtime(
+    name = "py2_runtime",
+    interpreter_path = "/usr/bin/python2",
+    python_version = "PY2",
+)
+
+py_runtime(
+    name = "py3_runtime",
+    interpreter_path = "/usr/bin/python3",
+    python_version = "PY3",
+)
+
+py_runtime_pair(
+    name = "py_runtime_pair",
+    py2_runtime = ":py2_runtime",
+    py3_runtime = ":py3_runtime",
+)
+
+toolchain(
+    name = "py_toolchain",
+    toolchain = "py_runtime_pair",
+    toolchain_type = "@bazel_tools//tools/python:toolchain_type",
+)
+
+load(
+    "@io_bazel_rules_docker//container:container.bzl",
+    "container_bundle",
+    "container_image",
+    "container_push",
+)
+
+# TODO Fix the rule below
+genrule(
+    name = "get-version",
+    srcs = [],
+    outs = [".version"],
+    cmd = "echo 1.1 >$@",
+    stamp = 1,
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "libvirt-libs",
+    srcs = select({
+        "@io_bazel_rules_go//go/platform:linux_arm64": ["//rpm:libvirt-libs_aarch64/usr/lib64"],
+        "@io_bazel_rules_go//go/platform:linux_s390x": ["//rpm:libvirt-libs_s390x/usr/lib64"],
+        "//conditions:default": ["//rpm:libvirt-libs_x86_64/usr/lib64"],
+    }),
+    hdrs = select({
+        "@io_bazel_rules_go//go/platform:linux_arm64": ["//rpm:libvirt-libs_aarch64/usr/include/libvirt"],
+        "@io_bazel_rules_go//go/platform:linux_s390x": ["//rpm:libvirt-libs_s390x/usr/include/libvirt"],
+        "//conditions:default": ["//rpm:libvirt-libs_x86_64/usr/include/libvirt"],
+    }),
+    linkstatic = 1,
+    strip_include_prefix = select({
+        "@io_bazel_rules_go//go/platform:linux_arm64": "/rpm/libvirt-libs_aarch64/usr/include/",
+        "@io_bazel_rules_go//go/platform:linux_s390x": "/rpm/libvirt-libs_s390x/usr/include/",
+        "//conditions:default": "/rpm/libvirt-libs_x86_64/usr/include/",
+    }),
+    visibility = ["//visibility:public"],
+)
+
+container_push(
+    name = "push-virt-launcher",
+    format = "Docker",
+    image = "//cmd/virt-launcher:virt-launcher-image",
+    registry = "$(container_prefix)",
+    repository = "$(image_prefix)virt-launcher",
+    tag = "$(container_tag)",
+)
