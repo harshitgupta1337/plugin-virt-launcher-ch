@@ -2,7 +2,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "go_default_library",
-    srcs = ["client-libvirt.go"],
+    srcs = ["client-cloud-hypervisor.go"],
     importpath = "kubevirt.io/kubevirt/pkg/virt-launcher-libvirt-qemu/notify-client",
     visibility = ["//visibility:public"],
     deps = [

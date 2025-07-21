@@ -1,8 +1,10 @@
 package eventsclient
 
 import (
+	"encoding/json"
 	"fmt"
-	"time"
+	"io"
+	"net"
 
 	"kubevirt.io/kubevirt/pkg/virt-launcher/metadata"
 
@@ -14,7 +16,6 @@ import (
 	v1 "kubevirt.io/api/core/v1"
 	"kubevirt.io/client-go/log"
 
-	agentpoller "kubevirt.io/kubevirt/pkg/virt-launcher-libvirt-qemu/virtwrap/agent-poller"
 	"kubevirt.io/kubevirt/pkg/virt-launcher-libvirt-qemu/virtwrap/cli"
 	"kubevirt.io/kubevirt/pkg/virt-launcher-libvirt-qemu/virtwrap/converter"
 	domainerrors "kubevirt.io/kubevirt/pkg/virt-launcher-libvirt-qemu/virtwrap/errors"
@@ -184,193 +185,59 @@ func updateEventsClosure() func(event watch.Event, domain *api.Domain, events ch
 	}
 }
 
-func StartLibvirtDomainNotifier(
-	n *notifyCommon.Notifier,
-	domainConn cli.Connection,
-	deleteNotificationSent chan watch.Event,
-	vmi *v1.VirtualMachineInstance,
-	domainName string,
-	agentStore *agentpoller.AsyncAgentStore,
-	qemuAgentSysInterval time.Duration,
-	qemuAgentFileInterval time.Duration,
-	qemuAgentUserInterval time.Duration,
-	qemuAgentVersionInterval time.Duration,
-	qemuAgentFSFreezeStatusInterval time.Duration,
-	metadataCache *metadata.Cache,
-) error {
-
-	eventChan := make(chan libvirtEvent, 10)
-
-	reconnectChan := make(chan bool, 10)
-
-	var domainCache *api.Domain
-
-	domainConn.SetReconnectChan(reconnectChan)
-
-	agentPoller := agentpoller.CreatePoller(
-		domainConn,
-		vmi.UID,
-		domainName,
-		agentStore,
-		qemuAgentSysInterval,
-		qemuAgentFileInterval,
-		qemuAgentUserInterval,
-		qemuAgentVersionInterval,
-		qemuAgentFSFreezeStatusInterval,
-	)
-
-	// Run the event process logic in a separate go-routine to not block libvirt
+func StartCloudHvDomainNotifier(n *notifyCommon.Notifier, eventMonitorConn net.Conn, domain *api.Domain) error {
 	go func() {
-		var interfaceStatuses []api.InterfaceStatus
-		var guestOsInfo *api.GuestOSInfo
-		var fsFreezeStatus *api.FSFreeze
-		var eventCaller eventCaller
-
+		type CloudHvEvent struct {
+			Source, Event string
+		}
+		decoder := json.NewDecoder(eventMonitorConn)
 		for {
-			select {
-			case event := <-eventChan:
-				metadataCache.ResetNotification()
-				domainCache = util.NewDomainFromName(event.Domain, vmi.UID)
-				eventCaller.eventCallback(domainConn, domainCache, event, n, deleteNotificationSent, interfaceStatuses, guestOsInfo, vmi, fsFreezeStatus, metadataCache)
-				log.Log.Infof("Domain name event: %v", domainCache.Spec.Name)
-				if event.AgentEvent != nil {
-					if event.AgentEvent.State == libvirt.CONNECT_DOMAIN_EVENT_AGENT_LIFECYCLE_STATE_CONNECTED {
-						agentPoller.Start()
-					} else if event.AgentEvent.State == libvirt.CONNECT_DOMAIN_EVENT_AGENT_LIFECYCLE_STATE_DISCONNECTED {
-						agentPoller.Stop()
-					}
-				}
-			case agentUpdate := <-agentStore.AgentUpdated:
-				metadataCache.ResetNotification()
-				interfaceStatuses = agentUpdate.DomainInfo.Interfaces
-				guestOsInfo = agentUpdate.DomainInfo.OSInfo
-				fsFreezeStatus = agentUpdate.DomainInfo.FSFreezeStatus
+			var event CloudHvEvent
 
-				eventCaller.eventCallback(domainConn, domainCache, libvirtEvent{}, n, deleteNotificationSent,
-					interfaceStatuses, guestOsInfo, vmi, fsFreezeStatus, metadataCache)
-			case <-reconnectChan:
-				n.SendDomainEvent(newWatchEventError(fmt.Errorf("Libvirt reconnect, domain %s", domainName)))
+			if err := decoder.Decode(&event); err == io.EOF {
+				// Connection has been shutdown
+				log.Log.Error("Event monitor connection has been shutdown")
+				return
+			} else if err != nil {
+				log.Log.Reason(err).Error("Could not decode Cloud Hypervisor event")
+				return
+			}
 
-			case <-metadataCache.Listen():
-				// Metadata cache updates should be processed only *after* at least one
-				// libvirt event arrived (which creates the first domainCache).
-				if domainCache != nil {
-					domainCache = util.NewDomainFromName(
-						util.DomainFromNamespaceName(domainCache.ObjectMeta.Namespace, domainCache.ObjectMeta.Name),
-						vmi.UID,
-					)
-					eventCaller.eventCallback(
-						domainConn,
-						domainCache,
-						libvirtEvent{},
-						n,
-						deleteNotificationSent,
-						interfaceStatuses,
-						guestOsInfo,
-						vmi,
-						fsFreezeStatus,
-						metadataCache,
-					)
+			log.Log.Infof("Event monitor received {source: %s, event: %s}", event.Source, event.Event)
+
+			var watchEvent watch.Event
+			switch event.Source {
+			case "vm":
+				switch event.Event {
+				case "booted":
+					domain.Status.Status = api.Running
+					domain.Status.Reason = api.ReasonUnknown
+					watchEvent = watch.Event{Type: watch.Added, Object: domain}
+				case "paused":
+					domain.Status.Status = api.Paused
+					domain.Status.Reason = api.ReasonPausedUser
+					watchEvent = watch.Event{Type: watch.Modified, Object: domain}
+				case "resumed":
+					domain.Status.Status = api.Running
+					domain.Status.Reason = api.ReasonUnknown
+					watchEvent = watch.Event{Type: watch.Modified, Object: domain}
+				case "shutdown":
+					domain.Status.Status = api.Shutdown
+					domain.Status.Reason = api.ReasonUnknown
+					watchEvent = watch.Event{Type: watch.Deleted, Object: domain}
+				default:
+					continue
 				}
+			default:
+				continue
+			}
+
+			if err := n.SendDomainEvent(watchEvent); err != nil {
+				log.Log.Reason(err).Error("Could not send domain event")
+				return
 			}
 		}
 	}()
 
-	domainEventLifecycleCallback := func(c *libvirt.Connect, d *libvirt.Domain, event *libvirt.DomainEventLifecycle) {
-
-		log.Log.Infof("DomainLifecycle event %s with event id %d reason %d received", event.String(), event.Event, event.Detail)
-		name, err := d.GetName()
-		if err != nil {
-			log.Log.Reason(err).Info(cantDetermineLibvirtDomainName)
-		}
-		select {
-		case eventChan <- libvirtEvent{Event: event, Domain: name}:
-		default:
-			log.Log.Infof(libvirtEventChannelFull)
-		}
-	}
-
-	domainEventDeviceAddedCallback := func(c *libvirt.Connect, d *libvirt.Domain, event *libvirt.DomainEventDeviceAdded) {
-		log.Log.Infof("Domain Device Added event received")
-		name, err := d.GetName()
-		if err != nil {
-			log.Log.Reason(err).Info(cantDetermineLibvirtDomainName)
-		}
-		select {
-		case eventChan <- libvirtEvent{Domain: name}:
-		default:
-			log.Log.Infof(libvirtEventChannelFull)
-		}
-	}
-
-	domainEventDeviceRemovedCallback := func(c *libvirt.Connect, d *libvirt.Domain, event *libvirt.DomainEventDeviceRemoved) {
-		log.Log.Infof("Domain Device Removed event received")
-		name, err := d.GetName()
-		if err != nil {
-			log.Log.Reason(err).Info(cantDetermineLibvirtDomainName)
-		}
-
-		select {
-		case eventChan <- libvirtEvent{Domain: name}:
-		default:
-			log.Log.Infof(libvirtEventChannelFull)
-		}
-	}
-
-	domainEventMemoryDeviceSizeChange := func(c *libvirt.Connect, d *libvirt.Domain, event *libvirt.DomainEventMemoryDeviceSizeChange) {
-		log.Log.Infof("Domain Memory Device size-change event received")
-		name, err := d.GetName()
-		if err != nil {
-			log.Log.Reason(err).Info(cantDetermineLibvirtDomainName)
-		}
-
-		select {
-		case eventChan <- libvirtEvent{Domain: name}:
-		default:
-			log.Log.Infof(libvirtEventChannelFull)
-		}
-	}
-
-	err := domainConn.DomainEventLifecycleRegister(domainEventLifecycleCallback)
-	if err != nil {
-		log.Log.Reason(err).Errorf("failed to register event callback with libvirt")
-		return err
-	}
-
-	err = domainConn.DomainEventDeviceAddedRegister(domainEventDeviceAddedCallback)
-	if err != nil {
-		log.Log.Reason(err).Errorf("failed to register device added event callback with libvirt")
-		return err
-	}
-	err = domainConn.DomainEventDeviceRemovedRegister(domainEventDeviceRemovedCallback)
-	if err != nil {
-		log.Log.Reason(err).Errorf("failed to register device removed event callback with libvirt")
-		return err
-	}
-	err = domainConn.DomainEventMemoryDeviceSizeChangeRegister(domainEventMemoryDeviceSizeChange)
-	if err != nil {
-		log.Log.Reason(err).Errorf("failed to register memory device size change event callback with libvirt")
-		return err
-	}
-
-	agentEventLifecycleCallback := func(c *libvirt.Connect, d *libvirt.Domain, event *libvirt.DomainEventAgentLifecycle) {
-		log.Log.Infof("GuestAgentLifecycle event state %d with reason %d received", event.State, event.Reason)
-		name, err := d.GetName()
-		if err != nil {
-			log.Log.Reason(err).Info(cantDetermineLibvirtDomainName)
-		}
-		select {
-		case eventChan <- libvirtEvent{AgentEvent: event, Domain: name}:
-		default:
-			log.Log.Infof(libvirtEventChannelFull)
-		}
-	}
-	err = domainConn.AgentEventLifecycleRegister(agentEventLifecycleCallback)
-	if err != nil {
-		log.Log.Reason(err).Errorf("failed to register event callback with libvirt")
-		return err
-	}
-
-	log.Log.Infof("Registered libvirt event notify callback")
 	return nil
 }

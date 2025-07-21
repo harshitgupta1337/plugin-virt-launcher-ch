@@ -45,6 +45,7 @@ import (
 	"kubevirt.io/kubevirt/pkg/ignition"
 	virtconfig "kubevirt.io/kubevirt/pkg/virt-config"
 	cmdclient "kubevirt.io/kubevirt/pkg/virt-handler/cmd-client"
+	notifyclientCh "kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/notify-client"
 	virtlauncher "kubevirt.io/kubevirt/pkg/virt-launcher-libvirt-qemu"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/metadata"
 	notifyclient "kubevirt.io/kubevirt/pkg/virt-launcher/notify-client"
@@ -264,7 +265,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := notifier.StartCloudHvDomainNotifier(wrapper.EventMonitorConn(), domainManager.GetDomain()); err != nil {
+	if err := notifyclientCh.StartCloudHvDomainNotifier(notifier, wrapper.EventMonitorConn(), domainManager.GetDomain()); err != nil {
 		panic(err)
 	}
 
