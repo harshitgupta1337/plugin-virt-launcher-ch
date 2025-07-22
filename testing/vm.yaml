@@ -13,8 +13,6 @@ spec:
     spec:
       domain:
         devices:
-          autoattachSerialConsole: false
-          logSerialConsole: false
           autoattachGraphicsDevice: false
           autoattachMemBalloon: false
           disks:
