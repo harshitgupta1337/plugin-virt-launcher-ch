@@ -25,7 +25,9 @@ spec:
               bus: virtio
             name: cloudinit
         cpu:
-          cores: 2
+          cores: 4
+          sockets: 1
+          threads: 1
           model: host-passthrough
         resources:
           requests:
