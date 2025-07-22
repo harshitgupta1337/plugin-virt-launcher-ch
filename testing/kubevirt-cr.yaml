@@ -10,6 +10,7 @@ spec:
     developerConfiguration:
       featureGates:
       - Root
+      - DataVolumes
     virtualizationStack:
       hypervisorDevice: /dev/kvm
       name: ch-kvm
