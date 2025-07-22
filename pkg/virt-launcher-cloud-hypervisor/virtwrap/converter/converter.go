@@ -60,10 +60,10 @@ import (
 	"kubevirt.io/kubevirt/pkg/util"
 	"kubevirt.io/kubevirt/pkg/virt-controller/services"
 	"kubevirt.io/kubevirt/pkg/virt-controller/watch/topology"
-	"kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/converter/arch"
-	"kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/converter/vcpu"
-	"kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/device"
-	"kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/launchsecurity"
+	"github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/converter/arch"
+	"github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/converter/vcpu"
+	"github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/device"
+	"github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/launchsecurity"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/api"
 )
 

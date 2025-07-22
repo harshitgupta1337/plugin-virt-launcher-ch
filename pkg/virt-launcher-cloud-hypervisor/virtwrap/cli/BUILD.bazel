@@ -7,7 +7,7 @@ go_library(
         "generated_mock_libvirt.go",
         "libvirt.go",
     ],
-    importpath = "kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/cli",
+    importpath = "github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/cli",
     visibility = ["//visibility:public"],
     deps = [
         "@kubevirt//pkg/apimachinery/wait:go_default_library",

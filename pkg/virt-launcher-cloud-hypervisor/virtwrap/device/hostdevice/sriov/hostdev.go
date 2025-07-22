@@ -34,8 +34,8 @@ import (
 	"kubevirt.io/kubevirt/pkg/network/deviceinfo"
 	"kubevirt.io/kubevirt/pkg/network/downwardapi"
 	"kubevirt.io/kubevirt/pkg/network/vmispec"
-	"kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/device"
-	"kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/device/hostdevice"
+	"github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/device"
+	"github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/device/hostdevice"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/api"
 )
 

@@ -45,12 +45,12 @@ import (
 	"kubevirt.io/kubevirt/pkg/ignition"
 	virtconfig "kubevirt.io/kubevirt/pkg/virt-config"
 	cmdclient "kubevirt.io/kubevirt/pkg/virt-handler/cmd-client"
-	notifyclientCh "kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/notify-client"
-	virtlauncher "kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor"
+	notifyclientCh "github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/notify-client"
+	virtlauncher "github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor"
 	notifyclient "kubevirt.io/kubevirt/pkg/virt-launcher/notify-client"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap"
-	virtwrapCh "kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap"
-	"kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/util"
+	virtwrapCh "github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap"
+	"github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/util"
 	cmdserver "kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/cmd-server"
 )
 

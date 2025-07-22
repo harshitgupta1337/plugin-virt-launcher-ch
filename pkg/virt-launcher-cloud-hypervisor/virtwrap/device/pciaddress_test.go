@@ -23,7 +23,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/device"
+	"github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/device"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/api"
 )
 

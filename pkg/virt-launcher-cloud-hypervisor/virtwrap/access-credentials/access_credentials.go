@@ -34,9 +34,9 @@ import (
 	"kubevirt.io/client-go/log"
 
 	"kubevirt.io/kubevirt/pkg/config"
-	"kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/agent"
-	"kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/cli"
-	"kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/util"
+	"github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/agent"
+	"github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/cli"
+	"github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/util"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/metadata"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/api"
 )

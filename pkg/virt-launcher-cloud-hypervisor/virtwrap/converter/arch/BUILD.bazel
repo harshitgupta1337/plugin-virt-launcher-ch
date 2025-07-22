@@ -9,7 +9,7 @@ go_library(
         "ppc64le.go",
         "s390x.go",
     ],
-    importpath = "kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/converter/arch",
+    importpath = "github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/converter/arch",
     visibility = ["//visibility:public"],
     deps = [
         "@kubevirt//pkg/pointer:go_default_library",

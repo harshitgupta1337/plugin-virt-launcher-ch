@@ -12,7 +12,7 @@ load("@kubevirt//staging/src/kubevirt.io/client-go/version:def.bzl", "version_x_
 go_library(
     name = "go_default_library",
     srcs = ["virt-launcher.go"],
-    importpath = "kubevirt.io/kubevirt/cmd/virt-launcher",
+    importpath = "github.com/harshitgupta1337/plugin-virt-launcher-ch/cmd/virt-launcher",
     visibility = ["//visibility:private"],
     deps = [
         "@kubevirt//pkg/apimachinery/wait:go_default_library",

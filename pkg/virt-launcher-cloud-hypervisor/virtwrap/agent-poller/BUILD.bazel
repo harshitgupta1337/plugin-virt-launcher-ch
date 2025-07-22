@@ -6,7 +6,7 @@ go_library(
         "agent_parser.go",
         "agent_poller.go",
     ],
-    importpath = "kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/agent-poller",
+    importpath = "github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/agent-poller",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/virt-launcher-cloud-hypervisor/virtwrap/cli:go_default_library",

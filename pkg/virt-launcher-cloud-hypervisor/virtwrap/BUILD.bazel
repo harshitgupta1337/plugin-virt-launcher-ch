@@ -10,7 +10,7 @@ go_library(
         "nichotplug.go",
         "manager_cloudhv.go",
     ],
-    importpath = "kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap",
+    importpath = "github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap",
     visibility = ["//visibility:public"],
     deps = [
         "@kubevirt//pkg/cloud-init:go_default_library",
