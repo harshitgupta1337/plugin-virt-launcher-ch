@@ -1,0 +1,31 @@
+---
+apiVersion: kubevirt.io/v1
+kind: KubeVirt
+metadata:
+  name: kubevirt
+  namespace: kubevirt
+spec:
+  certificateRotateStrategy: {}
+  configuration:
+    developerConfiguration:
+      featureGates:
+      - Root
+    virtualizationStack:
+      hypervisorDevice: /dev/kvm
+      name: ch-kvm
+      pitPidPrefix: kvm-pit
+      vCpuRegex: ^CPU (\d+)/KVM\n$
+      virtLauncherCapabilities:
+      - NET_BIND_SERVICE
+      - SYS_NICE
+      - NET_ADMIN
+      virtLauncherImage: harshitg/virt-launcher:ch_plugin
+      virtLauncherOverhead: 220Mi
+      vmmDaemonProcess: cloud-hypervisor
+      vmmProcessExecutables:
+      - cloud-hypervisor
+      - cloud-hypervisor-static
+      vmmSocketPath: libvirt/virtqemud-sock
+  customizeComponents: {}
+  imagePullPolicy: IfNotPresent
+  workloadUpdateStrategy: {}
