@@ -155,7 +155,7 @@ func (c *CloudHvDomainManager) SyncVMI(vmi *v1.VirtualMachineInstance, allowEmul
 		c.vmConfig = vmConfig
 
 		// Run pre-start hooks
-		if err := c.preStartHook(vmi); err != nil {
+		if err := c.preStartHook(vmi, options); err != nil {
 			return nil, err
 		}
 
@@ -367,7 +367,7 @@ func (c *CloudHvDomainManager) getVmInfo() (openapiClient.VmInfo, error) {
 // can be done in this function. This includes things like...
 //
 // - storage prep
-func (c *CloudHvDomainManager) preStartHook(vmi *v1.VirtualMachineInstance) error {
+func (c *CloudHvDomainManager) preStartHook(vmi *v1.VirtualMachineInstance, options *cmdv1.VirtualMachineOptions) error {
 	logger := log.Log.Object(vmi)
 
 	logger.Info("Executing PreStartHook on VMI pod environment")
@@ -420,7 +420,7 @@ func (c *CloudHvDomainManager) preStartHook(vmi *v1.VirtualMachineInstance) erro
 
 	logger.Info("Executing PrepareNetwork on VMI pod environment")
 	// Setup the networking (phase #2)
-	if err := c.PrepareNetwork(vmi); err != nil {
+	if err := c.PrepareNetwork(vmi, options); err != nil {
 		return err
 	}
 
@@ -498,7 +498,7 @@ func (c *CloudHvDomainManager) GetDomain() *api.Domain {
 	return c.domain
 }
 
-func (c *CloudHvDomainManager) PrepareNetwork(vmi *v1.VirtualMachineInstance) error {
+func (c *CloudHvDomainManager) PrepareNetwork(vmi *v1.VirtualMachineInstance, options *cmdv1.VirtualMachineOptions) error {
 	if c.vmConfig.Net == nil {
 		return nil
 	}
@@ -524,11 +524,15 @@ func (c *CloudHvDomainManager) PrepareNetwork(vmi *v1.VirtualMachineInstance) er
 		return iface.State != v1.InterfaceStateAbsent
 	})
 	nonAbsentNets := netvmispec.FilterNetworksByInterfaces(vmi.Spec.Networks, nonAbsentIfaces)
+	var interfaceDomainAttachments map[string]string
+	if options != nil {
+		interfaceDomainAttachments = options.GetInterfaceDomainAttachment()
+	}
 
 	// The domain is going to be updated through this function. It means
 	// MTU, MAC address and TAP interface name are going to be provisioned
 	// through this step.
-	if err := netsetup.NewVMNetworkConfigurator(vmi, cache.CacheCreator{}).SetupPodNetworkPhase2(&domain, nonAbsentNets); err != nil {
+	if err := netsetup.NewVMNetworkConfigurator(vmi, cache.CacheCreator{}, netsetup.WithDomainAttachments(interfaceDomainAttachments)).SetupPodNetworkPhase2(&domain, nonAbsentNets); err != nil {
 		return fmt.Errorf("Failed preparing pod network: %v", err)
 	}
 
