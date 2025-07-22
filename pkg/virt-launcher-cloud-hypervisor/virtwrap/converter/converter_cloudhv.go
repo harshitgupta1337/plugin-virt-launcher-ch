@@ -291,6 +291,8 @@ func convertVolumesToVmConfig(vmi *v1.VirtualMachineInstance, vmConfig *openapiC
 		} else if volume.DataVolume != nil {
 			log.Log.Object(vmi).Infof("Setting disk path for DataVolume '%s' to %s", volume.Name, GetFilesystemVolumePath(volume.Name))
 			diskConfig.Path = GetFilesystemVolumePath(volume.Name)
+		} else if volume.HostDisk != nil {
+			diskConfig.Path = volume.HostDisk.Path
 		} else {
 			log.Log.Object(vmi).Infof("Could not find matching clause for volume %+v", volume)
 		}
