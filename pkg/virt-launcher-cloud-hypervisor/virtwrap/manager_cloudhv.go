@@ -139,6 +139,13 @@ func (c *CloudHvDomainManager) SyncVMI(vmi *v1.VirtualMachineInstance, allowEmul
 	// VM if it's not running yet. We can add more advanced machine state
 	// handling later.
 
+	logger := log.Log.Object(vmi)
+	logger.Infof("SyncVMI called for VMI %s/%s. Printing volume information.", vmi.Namespace, vmi.Name)
+	// Print volume information for debugging purposes
+	for _, volume := range vmi.Spec.Volumes {
+		logger.Infof("Volume Name: %s, Contents: %+v", volume.Name, volume)
+	}
+
 	// Convert the VMI definition into a Cloud Hypervisor configuration.
 	vmConfig := c.vmConfig
 	if err := converter.ConvertVirtualMachineInstanceToVmConfig(vmi, &vmConfig); err != nil {

@@ -254,6 +254,8 @@ func convertDomainSpecToVmConfig(vmi *v1.VirtualMachineInstance, vmConfig *opena
 }
 
 func convertVolumesToVmConfig(vmi *v1.VirtualMachineInstance, vmConfig *openapiClient.VmConfig) (err error) {
+	log.Log.Object(vmi).Infof("Inside function convertVolumesToVmConfig")
+
 	volumes := vmi.Spec.Volumes
 
 	if vmConfig.Disks == nil {
@@ -265,7 +267,9 @@ func convertVolumesToVmConfig(vmi *v1.VirtualMachineInstance, vmConfig *openapiC
 		disksConfig[disk.GetId()] = &(*vmConfig.Disks)[i]
 	}
 
-  // TODO PLUGINDEV Uncomment the line below when following TODOs are resolved
+	log.Log.Object(vmi).Infof("Just before iterating over volumes")
+
+	// TODO PLUGINDEV Uncomment the line below when following TODOs are resolved
 	//for i, volume := range volumes {
 	for _, volume := range volumes {
 		diskConfig, ok := disksConfig[volume.Name]
@@ -275,15 +279,20 @@ func convertVolumesToVmConfig(vmi *v1.VirtualMachineInstance, vmConfig *openapiC
 
 		if volume.ContainerDisk != nil {
 			// TODO PLUGINDEV diskConfig.Path = containerdisk.GetRawDiskTargetPathFromLauncherView(i)
-      panic("ContainerDisk support is not implemented currently")
+			panic("ContainerDisk support is not implemented currently")
 		} else if volume.EmptyDisk != nil {
 			// TODO PLUGINDEV diskConfig.Path = emptydisk.NewEmptyRawDiskCreator().FilePathForVolumeName(volume.Name)
-      panic("EmptyDisk support is not implemented currently")
+			panic("EmptyDisk support is not implemented currently")
 		} else if volume.EmptyDisk != nil {
 		} else if volume.CloudInitNoCloud != nil {
 			diskConfig.Path = cloudinit.GetIsoFilePath(cloudinit.DataSourceNoCloud, vmi.Name, vmi.Namespace)
 		} else if volume.CloudInitConfigDrive != nil {
 			diskConfig.Path = cloudinit.GetIsoFilePath(cloudinit.DataSourceConfigDrive, vmi.Name, vmi.Namespace)
+		} else if volume.DataVolume != nil {
+			log.Log.Object(vmi).Infof("Setting disk path for DataVolume '%s' to %s", volume.Name, GetFilesystemVolumePath(volume.Name))
+			diskConfig.Path = GetFilesystemVolumePath(volume.Name)
+		} else {
+			log.Log.Object(vmi).Infof("Could not find matching clause for volume %+v", volume)
 		}
 	}
 
