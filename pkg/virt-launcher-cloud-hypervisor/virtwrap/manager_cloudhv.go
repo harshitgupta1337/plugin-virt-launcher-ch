@@ -35,20 +35,22 @@ import (
 
 	cloudinit "kubevirt.io/kubevirt/pkg/cloud-init"
 	"kubevirt.io/kubevirt/pkg/config"
-	containerdisk "kubevirt.io/kubevirt/pkg/container-disk"
-	"kubevirt.io/kubevirt/pkg/emptydisk"
+
+	//containerdisk "kubevirt.io/kubevirt/pkg/container-disk"
+	//"kubevirt.io/kubevirt/pkg/emptydisk"
 	"kubevirt.io/kubevirt/pkg/hooks"
 	"kubevirt.io/kubevirt/pkg/network/cache"
 	netsetup "kubevirt.io/kubevirt/pkg/network/setup"
+	netvmispec "kubevirt.io/kubevirt/pkg/network/vmispec"
 	cmdclient "kubevirt.io/kubevirt/pkg/virt-handler/cmd-client"
 
 	v1 "kubevirt.io/api/core/v1"
 
 	ephemeraldisk "kubevirt.io/kubevirt/pkg/ephemeral-disk"
 	cmdv1 "kubevirt.io/kubevirt/pkg/handler-launcher-com/cmd/v1"
+	"kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/converter"
+	openapiClient "kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/openapi/cloud-hypervisor/client"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/api"
-	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/converter"
-	openapiClient "kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/openapi/cloud-hypervisor/client"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/stats"
 )
 
@@ -104,7 +106,11 @@ func (c *CloudHvDomainManager) PrepareMigrationTarget(
 	return fmt.Errorf("PrepareMigrationTarget not implemented for CloudHvDomainManager")
 }
 
-func (c *CloudHvDomainManager) FinalizeVirtualMachineMigration(vmi *v1.VirtualMachineInstance) error {
+func (l *CloudHvDomainManager) FormatError(err error) string {
+	return err.Error()
+}
+
+func (c *CloudHvDomainManager) FinalizeVirtualMachineMigration(vmi *v1.VirtualMachineInstance, options *cmdv1.VirtualMachineOptions) error {
 	return fmt.Errorf("FinalizeVirtualMachineMigration not implemented for CloudHvDomainManager")
 }
 
@@ -244,8 +250,8 @@ func (c *CloudHvDomainManager) SoftRebootVMI(vmi *v1.VirtualMachineInstance) err
 	return nil
 }
 
-func (c *CloudHvDomainManager) MarkGracefulShutdownVMI(vmi *v1.VirtualMachineInstance) error {
-	return fmt.Errorf("MarkGracefulShutdownVMI not implemented for CloudHvDomainManager")
+func (c *CloudHvDomainManager) MarkGracefulShutdownVMI() {
+	panic("MarkGracefulShutdownVMI not implemented for CloudHvDomainManager")
 }
 
 func (c *CloudHvDomainManager) SignalShutdownVMI(vmi *v1.VirtualMachineInstance) error {
@@ -309,12 +315,12 @@ func (c *CloudHvDomainManager) ListAllDomains() ([]*api.Domain, error) {
 	return []*api.Domain{c.domain}, nil
 }
 
-func (c *CloudHvDomainManager) GetDomainStats() ([]*stats.DomainStats, error) {
-	return []*stats.DomainStats{}, nil
+func (c *CloudHvDomainManager) GetDomainStats() (*stats.DomainStats, error) {
+	return &stats.DomainStats{}, nil
 }
 
-func (c *CloudHvDomainManager) GetGuestInfo() (v1.VirtualMachineInstanceGuestAgentInfo, error) {
-	return v1.VirtualMachineInstanceGuestAgentInfo{}, fmt.Errorf("GetGuestInfo not implemented for CloudHvDomainManager")
+func (c *CloudHvDomainManager) GetGuestInfo() v1.VirtualMachineInstanceGuestAgentInfo {
+	return v1.VirtualMachineInstanceGuestAgentInfo{}
 }
 
 func (c *CloudHvDomainManager) InterfacesStatus() []api.InterfaceStatus {
@@ -325,12 +331,12 @@ func (c *CloudHvDomainManager) GetGuestOSInfo() *api.GuestOSInfo {
 	return &api.GuestOSInfo{}
 }
 
-func (c *CloudHvDomainManager) GetUsers() ([]v1.VirtualMachineInstanceGuestOSUser, error) {
-	return []v1.VirtualMachineInstanceGuestOSUser{}, fmt.Errorf("GetUsers not implemented for CloudHvDomainManager")
+func (c *CloudHvDomainManager) GetUsers() []v1.VirtualMachineInstanceGuestOSUser {
+	return []v1.VirtualMachineInstanceGuestOSUser{}
 }
 
-func (c *CloudHvDomainManager) GetFilesystems() ([]v1.VirtualMachineInstanceFileSystem, error) {
-	return []v1.VirtualMachineInstanceFileSystem{}, fmt.Errorf("GetFilesystems not implemented for CloudHvDomainManager")
+func (c *CloudHvDomainManager) GetFilesystems() []v1.VirtualMachineInstanceFileSystem {
+	return []v1.VirtualMachineInstanceFileSystem{}
 }
 
 func (c *CloudHvDomainManager) getVmState() (string, error) {
@@ -366,15 +372,15 @@ func (c *CloudHvDomainManager) preStartHook(vmi *v1.VirtualMachineInstance) erro
 
 	logger.Info("Executing PreStartHook on VMI pod environment")
 
-	// Create ephemeral disks for container disks
-	if err := containerdisk.CreateRawEphemeralImages(vmi); err != nil {
-		return fmt.Errorf("preparing ephemeral container disk images failed: %v", err)
-	}
+	// TODO PLUGINDEV // Create ephemeral disks for container disks
+	// TODO PLUGINDEV if err := containerdisk.CreateRawEphemeralImages(vmi); err != nil {
+	// TODO PLUGINDEV 	return fmt.Errorf("preparing ephemeral container disk images failed: %v", err)
+	// TODO PLUGINDEV }
 
-	// Create empty disks
-	if err := emptydisk.NewEmptyRawDiskCreator().CreateTemporaryDisks(vmi); err != nil {
-		return fmt.Errorf("creating empty disks failed: %v", err)
-	}
+	// TODO PLUGINDEV // Create empty disks
+	// TODO PLUGINDEV if err := emptydisk.NewEmptyRawDiskCreator().CreateTemporaryDisks(vmi); err != nil {
+	// TODO PLUGINDEV 	return fmt.Errorf("creating empty disks failed: %v", err)
+	// TODO PLUGINDEV }
 
 	// Create cloud-init images
 	// generate cloud-init data
@@ -398,14 +404,16 @@ func (c *CloudHvDomainManager) preStartHook(vmi *v1.VirtualMachineInstance) erro
 			return fmt.Errorf("PrepareLocalPath failed: %v", err)
 		}
 
-		// ClusterFlavor will take precedence over a namespaced Flavor
-		// for setting instance_type in the metadata
-		flavor := vmi.Annotations[v1.ClusterFlavorAnnotation]
-		if flavor == "" {
-			flavor = vmi.Annotations[v1.FlavorAnnotation]
-		}
+		// TODO PLUGINDEV // ClusterFlavor will take precedence over a namespaced Flavor
+		// TODO PLUGINDEV // for setting instance_type in the metadata
+		// TODO PLUGINDEV flavor := vmi.Annotations[v1.ClusterFlavorAnnotation]
+		// TODO PLUGINDEV if flavor == "" {
+		// TODO PLUGINDEV 	flavor = vmi.Annotations[v1.FlavorAnnotation]
+		// TODO PLUGINDEV }
 
-		if err := cloudinit.GenerateLocalData(vmi, flavor, cloudInitData); err != nil {
+		// TODO PLUGINDEV Uncomment line below when the above TODOs are resolvd
+		// if err := cloudinit.GenerateLocalData(vmi, flavor, cloudInitData); err != nil {
+		if err := cloudinit.GenerateLocalData(vmi, "", cloudInitData); err != nil {
 			return fmt.Errorf("generating local cloud-init data failed: %v", err)
 		}
 	}
@@ -512,10 +520,15 @@ func (c *CloudHvDomainManager) PrepareNetwork(vmi *v1.VirtualMachineInstance) er
 		domain.Spec.Devices.Interfaces = append(domain.Spec.Devices.Interfaces, domainIface)
 	}
 
+	nonAbsentIfaces := netvmispec.FilterInterfacesSpec(vmi.Spec.Domain.Devices.Interfaces, func(iface v1.Interface) bool {
+		return iface.State != v1.InterfaceStateAbsent
+	})
+	nonAbsentNets := netvmispec.FilterNetworksByInterfaces(vmi.Spec.Networks, nonAbsentIfaces)
+
 	// The domain is going to be updated through this function. It means
 	// MTU, MAC address and TAP interface name are going to be provisioned
 	// through this step.
-	if err := netsetup.NewVMNetworkConfigurator(vmi, cache.CacheCreator{}).SetupPodNetworkPhase2(&domain); err != nil {
+	if err := netsetup.NewVMNetworkConfigurator(vmi, cache.CacheCreator{}).SetupPodNetworkPhase2(&domain, nonAbsentNets); err != nil {
 		return fmt.Errorf("Failed preparing pod network: %v", err)
 	}
 
@@ -535,4 +548,37 @@ func (c *CloudHvDomainManager) PrepareNetwork(vmi *v1.VirtualMachineInstance) er
 	}
 
 	return nil
+}
+
+func (l *CloudHvDomainManager) GetDomainDirtyRateStats(calculationDuration time.Duration) (*stats.DomainStatsDirtyRate, error) {
+	return nil, fmt.Errorf("getDomainDirtyRateStats not implemented for CloudHvDomainManager.")
+}
+
+func (l *CloudHvDomainManager) GetLaunchMeasurement(vmi *v1.VirtualMachineInstance) (*v1.SEVMeasurementInfo, error) {
+	return nil, fmt.Errorf("GetLaunchMeasurement not implemented for CloudHvDomainManager.")
+}
+
+func (l *CloudHvDomainManager) GetQemuVersion() (string, error) {
+	return "", fmt.Errorf("GetQemuVersion not implemented for CloudHvDomainManager.")
+}
+
+func (l *CloudHvDomainManager) GetSEVInfo() (*v1.SEVPlatformInfo, error) {
+	return nil, fmt.Errorf("GetSEVInfo not implemented for CloudHvDomainManager.")
+}
+
+func (l *CloudHvDomainManager) InjectLaunchSecret(vmi *v1.VirtualMachineInstance, sevSecretOptions *v1.SEVSecretOptions) error {
+	return fmt.Errorf("InjectLaunchSecret not implemented for CloudHvDomainManager.")
+}
+
+func (l *CloudHvDomainManager) ResetVMI(vmi *v1.VirtualMachineInstance) error {
+	return fmt.Errorf("ResetVMI not implemented for CloudHvDomainManager.")
+}
+
+func (l *CloudHvDomainManager) UpdateGuestMemory(vmi *v1.VirtualMachineInstance) error {
+	return fmt.Errorf("UpdateGuestMemory not implemented for CloudHvDomainManager.")
+}
+
+func (l *CloudHvDomainManager) UpdateVCPUs(vmi *v1.VirtualMachineInstance, options *cmdv1.VirtualMachineOptions) error {
+	return fmt.Errorf("UpdateVCPUs not implemented for CloudHvDomainManager.")
+
 }

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"kubevirt.io/kubevirt/pkg/virt-launcher-libvirt-qemu/virtwrap/cli"
+	"kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/cli"
 	agentCommon "kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/agent"
 )
 

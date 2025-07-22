@@ -34,8 +34,8 @@ import (
 	"kubevirt.io/client-go/log"
 
 	virtwait "kubevirt.io/kubevirt/pkg/apimachinery/wait"
-	"kubevirt.io/kubevirt/pkg/virt-launcher-libvirt-qemu/virtwrap/errors"
-	"kubevirt.io/kubevirt/pkg/virt-launcher-libvirt-qemu/virtwrap/statsconv"
+	"kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/errors"
+	"kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/statsconv"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/api"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/stats"
 )

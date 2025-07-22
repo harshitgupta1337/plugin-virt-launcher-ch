@@ -1,4 +1,4 @@
-workspace(name = "virt-launcher-libvirt-qemu")
+workspace(name = "virt-launcher-cloud-hypervisor")
 
 local_repository(
     name = "kubevirt",

@@ -4,6 +4,7 @@ go_library(
     name = "go_default_library",
     srcs = [
         "converter.go",
+        "converter_cloudhv.go",
         "downwardmetrics.go",
         "generated_mock_converter.go",
         "network.go",
@@ -34,6 +35,7 @@ go_library(
         "//pkg/virt-launcher-cloud-hypervisor/virtwrap/converter/arch:go_default_library",
         "//pkg/virt-launcher-cloud-hypervisor/virtwrap/converter/vcpu:go_default_library",
         "//pkg/virt-launcher-cloud-hypervisor/virtwrap/device:go_default_library",
+        "//pkg/virt-launcher-cloud-hypervisor/virtwrap/openapi/cloud-hypervisor/client:go_default_library",
         "//pkg/virt-launcher-cloud-hypervisor/virtwrap/launchsecurity:go_default_library",
         "@kubevirt//pkg/virt-launcher/virtwrap/api:go_default_library",
         "@kubevirt//pkg/virtiofs:go_default_library",

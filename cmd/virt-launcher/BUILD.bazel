@@ -231,5 +231,6 @@ container_image(
         ":cloud-hypervisor_binary_tar",
         ":cloudhv_fw_tar",
     ],
+    user = "root",
     visibility = ["//visibility:public"],
 )

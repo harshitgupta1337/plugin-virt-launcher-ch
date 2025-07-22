@@ -36,14 +36,18 @@ if [ -z "$DOCKER_PREFIX" ] || [ -z "$DOCKER_TAG" ]; then
     exit 1
 fi
 
+set -ex
+
 BUILDER_IMG=quay.io/kubevirt/builder:2505091401-8ab710cdb8
 
 # Mount Docker config to the Builder container for pushing built images to registry
 volumes="--mount type=bind,source=${HOME}/.docker/config.json,target=/root/.docker/config.json,readonly"
 
-# Download KubeVirt's MSFT fork - branch containing refactored virt-launcher code
+## Download KubeVirt's MSFT fork - branch containing refactored virt-launcher code
+pushd /tmp/
 git clone --depth 1 -b virtstack-crd-rebased https://github.com/harshitgupta1337/kubevirt.git
 KUBEVIRT_CORE_PATH=$(realpath ./kubevirt)
+popd
 
 # Delete cloud-hypervisor virt-launcher code from KubeVirt Core
 pushd $KUBEVIRT_CORE_PATH
