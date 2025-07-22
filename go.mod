@@ -1,4 +1,4 @@
-module github.com/harshitgupta1337/independent-virt-launcher
+module github.com/harshitgupta1337/plugin-virt-launcher-ch
 
 go 1.23.0
 
@@ -35,6 +35,7 @@ require (
 	k8s.io/api v0.32.5 // indirect
 	k8s.io/apiextensions-apiserver v0.32.5 // indirect
 	k8s.io/apimachinery v0.32.5 // indirect
+	k8s.io/apiserver v0.32.5 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
 	kubevirt.io/containerized-data-importer-api v1.60.3-0.20241105012228-50fbed985de9 // indirect
@@ -42,9 +43,23 @@ require (
 	sigs.k8s.io/json v0.0.0-20241010143419-9aa6b5e7a4b3 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.3 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
+  github.com/openshift/api v0.0.0 // indirect
+  github.com/openshift/client-go v0.0.0 // indirect
+  k8s.io/kubectl v0.0.0-00010101000000-000000000000 // indirect
+  k8s.io/kube-openapi v0.31.0 // indirect
 )
 
 replace (
+  github.com/openshift/api => github.com/openshift/api v0.0.0-20210105115604-44119421ec6b
+  github.com/openshift/client-go => github.com/openshift/client-go v0.0.0-20210112165513-ebc401615f47
+  k8s.io/kubectl => k8s.io/kubectl v0.32.5
+  k8s.io/apimachinery => k8s.io/apimachinery v0.32.5
+  k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20240430033511-f0e62f92d13f
+  k8s.io/api => k8s.io/api v0.32.5
+  k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.32.5
+  k8s.io/apimachinery => k8s.io/apimachinery v0.32.5
+  k8s.io/apiserver => k8s.io/apiserver v0.32.5
+
 	kubevirt.io/api => ../kubevirt/staging/src/kubevirt.io/api
 	kubevirt.io/client-go => ../kubevirt/staging/src/kubevirt.io/client-go
 	kubevirt.io/kubevirt => ../kubevirt
