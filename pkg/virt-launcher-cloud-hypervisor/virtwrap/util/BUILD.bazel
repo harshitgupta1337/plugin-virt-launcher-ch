@@ -7,7 +7,7 @@ go_library(
         "cpu_utils.go",
         "libvirt_helper.go",
     ],
-    importpath = "kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/util",
+    importpath = "github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/util",
     visibility = ["//visibility:public"],
     deps = [
         "@kubevirt//pkg/hooks:go_default_library",

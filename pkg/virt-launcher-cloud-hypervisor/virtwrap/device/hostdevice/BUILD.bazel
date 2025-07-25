@@ -7,7 +7,7 @@ go_library(
         "hostdev.go",
         "hotplug.go",
     ],
-    importpath = "kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/device/hostdevice",
+    importpath = "github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/device/hostdevice",
     visibility = ["//visibility:public"],
     deps = [
         "@kubevirt//pkg/util:go_default_library",

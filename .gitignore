@@ -1,0 +1,3 @@
+_out/
+bazel-*
+MODULE.bazel*

@@ -3,7 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 go_library(
     name = "go_default_library",
     srcs = ["virt-launcher-monitor.go"],
-    importpath = "kubevirt.io/kubevirt/cmd/virt-launcher-monitor",
+    importpath = "github.com/harshitgupta1337/plugin-virt-launcher-ch/cmd/virt-launcher-monitor",
     visibility = ["//visibility:private"],
     deps = [
         "@kubevirt//staging/src/kubevirt.io/client-go/log:go_default_library",

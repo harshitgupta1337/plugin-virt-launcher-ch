@@ -29,7 +29,7 @@ import (
 
 	cloudinit "kubevirt.io/kubevirt/pkg/cloud-init"
 	containerdisk "kubevirt.io/kubevirt/pkg/container-disk"
-	openapiClient "kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/openapi/cloud-hypervisor/client"
+	openapiClient "github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/openapi/cloud-hypervisor/client"
 )
 
 func ConvertVirtualMachineInstanceToVmConfig(vmi *v1.VirtualMachineInstance, vmConfig *openapiClient.VmConfig) (err error) {

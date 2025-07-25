@@ -6,7 +6,7 @@ go_library(
         "converter.go",
         "generated_mock_converter.go",
     ],
-    importpath = "kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/statsconv",
+    importpath = "github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/statsconv",
     visibility = ["//visibility:public"],
     deps = [
         "@kubevirt//pkg/virt-launcher/virtwrap/stats:go_default_library",

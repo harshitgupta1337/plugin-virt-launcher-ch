@@ -57,9 +57,9 @@ import (
 	"kubevirt.io/kubevirt/pkg/testutils"
 	"kubevirt.io/kubevirt/pkg/util/hardware"
 	"kubevirt.io/kubevirt/pkg/virt-controller/services"
-	archconverter "kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/converter/arch"
-	"kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/converter/vcpu"
-	sev "kubevirt.io/kubevirt/pkg/virt-launcher-cloud-hypervisor/virtwrap/launchsecurity"
+	archconverter "github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/converter/arch"
+	"github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/converter/vcpu"
+	sev "github.com/harshitgupta1337/plugin-virt-launcher-ch/pkg/virt-launcher-cloud-hypervisor/virtwrap/launchsecurity"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/api"
 )
 
