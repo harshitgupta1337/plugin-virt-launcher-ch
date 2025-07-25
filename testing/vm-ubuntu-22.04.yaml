@@ -2,14 +2,14 @@ apiVersion: kubevirt.io/v1
 kind: VirtualMachine
 metadata:
   labels:
-    kubevirt.io/vm: kubevirt-ch-vm-1
-  name: kubevirt-ch-vm-1
+    kubevirt.io/vm: ubuntu-22.04
+  name: ubuntu-22.04
 spec:
   running: true
   template:
     metadata:
       labels:
-        kubevirt.io/vm: kubevirt-ch-vm-1
+        kubevirt.io/vm: ubuntu-22.04
     spec:
       domain:
         devices:
@@ -33,7 +33,7 @@ spec:
       terminationGracePeriodSeconds: 0
       volumes:
       - dataVolume:
-          name: ch-test-dv
+          name: ubuntu-22.04-osdisk
         name: rootfs
       - cloudInitNoCloud:
           userData: |

@@ -1,0 +1,19 @@
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: ubuntu-22.04-osdisk
+  labels:
+    name: ubuntu-22.04-osdisk
+  annotations:
+    cdi.kubevirt.io/storage.bind.immediate.requested: ""
+spec:
+  source:
+    registry:
+      url: "docker://docker.io/harshitg/ubuntu-server-22.04:raw"
+  pvc:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
+    storageClassName: "local"
